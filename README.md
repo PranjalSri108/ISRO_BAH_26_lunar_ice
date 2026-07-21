@@ -1,17 +1,17 @@
 # Lunar Subsurface-Ice Detection & Rover Mission Planning
 
-*Finding water ice at the lunar south pole and planning a safe landing + rover traverse to reach it — from real Chandrayaan-2 radar and NASA LOLA topography.*
+*Finding water ice at the lunar south pole and planning a safe landing + rover traverse to reach it - from real Chandrayaan-2 radar and NASA LOLA topography.*
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Data](https://img.shields.io/badge/data-Chandrayaan--2%20DFSAR%20%7C%20NASA%20LOLA-0b2a4a)
 
-> ### 🏆 Top 10 — ISRO Bharatiya Antariksh Hackathon 2026 (Problem Statement 8)
+> ### 🏆 Top 10 - ISRO Bharatiya Antariksh Hackathon 2026 (Problem Statement 8)
 
 ## Built and validated on real mission data
 
 Every result in this repository comes from archived planetary mission
-data — no simulated scenes, no synthetic terrain, no toy benchmarks.
+data - no simulated scenes, no synthetic terrain, no toy benchmarks.
 
 | Dataset | Source | Role |
 |---|---|---|
@@ -21,18 +21,18 @@ data — no simulated scenes, no synthetic terrain, no toy benchmarks.
 | **ICY_CRATERS mask** (Putrevu 2023) | Published catalogue | Independent validation reference |
 
 - Detection runs on the **true full-polarimetric Stokes vector** computed from
-  the complex HH/HV/VH/VV channels — not on a pre-derived product.
+  the complex HH/HV/VH/VV channels - not on a pre-derived product.
 - The landing site, hazard mask, and illumination index are derived from real
   LOLA topography over crater F2 (Faustini, 87.39°S 82.31°E).
 - The rover traverse executes on the **actual F2 crater terrain**, with real
-  shadow geometry — not a synthetic environment.
+  shadow geometry - not a synthetic environment.
 - Results are cross-checked against published literature (Sinha et al. 2026)
   and an independent catalogue, with disagreements reported openly.
 
-This project takes a doubly-shadowed south-polar crater — **F2 (Faustini), 87.39°S 82.31°E** —
+This project takes a doubly-shadowed south-polar crater - **F2 (Faustini), 87.39°S 82.31°E** -
 and runs the full mission-planning loop on **real data**: detect subsurface water ice from
 Chandrayaan-2 DFSAR polarimetric radar, select a safe landing site from LOLA topography, and
-plan an energy-constrained rover traverse to the ice. No synthetic stand-ins, no black boxes —
+plan an energy-constrained rover traverse to the ice. No synthetic stand-ins, no black boxes -
 every number below is reproducible from the code in this repository.
 
 ![End-to-end pipeline: detect → land → traverse](assets/pipeline_hero.png)
@@ -45,15 +45,15 @@ every number below is reproducible from the code in this repository.
 |--------|-------|
 | **High-confidence subsurface ice over F2** | **0.47 km²** (`CPR > 1 AND DOP < 0.13`) |
 | **Water-equivalent mass** | **≈ 1.08 Mt** (range **0.86 – 1.29 Mt**, porosity 0.40–0.60) |
-| **Inherited-pipeline error found & corrected** | a **~350× over-detection** — an inherited `DOP < 0.87` threshold flagged **166 km²** of surface scatter as ice; the author-confirmed `DOP < 0.13` isolates the real **0.47 km²** |
-| **Ranked landing sites** | **4 profiles** — `closest_ice`, `safest`, `balanced`, `best_lit` |
-| **Selected landing site** | 83.12°E, 87.36°S — **1.38 km** from F2, mean slope **1.35°**, 67 % go-terrain within 1 km |
+| **Inherited-pipeline error found & corrected** | a **~350× over-detection** - an inherited `DOP < 0.87` threshold flagged **166 km²** of surface scatter as ice; the author-confirmed `DOP < 0.13` isolates the real **0.47 km²** |
+| **Ranked landing sites** | **4 profiles** - `closest_ice`, `safest`, `balanced`, `best_lit` |
+| **Selected landing site** | 83.12°E, 87.36°S - **1.38 km** from F2, mean slope **1.35°**, 67 % go-terrain within 1 km |
 | **Rover traverse** | 9 ice nodes, 88.9 % coverage, energy-constrained multi-trip route |
 
 The ~350× correction is the story we're proudest of: the same detection criterion, applied with
 the wrong depolarization threshold, over-reports ice by two and a half orders of magnitude.
 
-![DOP threshold audit — 166 km² vs 0.47 km²](assets/headline_threshold_350x.png)
+![DOP threshold audit - 166 km² vs 0.47 km²](assets/headline_threshold_350x.png)
 
 ---
 
@@ -70,10 +70,10 @@ underpins the rover-traverse simulation below.*
 
 ### Rover traverse over real F2 terrain
 
-[![Rover traverse simulation over F2 crater terrain — click to play](assets/rover_traverse_f2_thumb.jpg)](assets/rover_traverse_f2.mp4)
+[![Rover traverse simulation over F2 crater terrain - click to play](assets/rover_traverse_f2_thumb.jpg)](assets/rover_traverse_f2.mp4)
 
 *Click the still above to play the simulation → [`assets/rover_traverse_f2.mp4`](assets/rover_traverse_f2.mp4).
-The traverse runs over the **actual F2 crater terrain reconstructed from real DEM data — not a
+The traverse runs over the **actual F2 crater terrain reconstructed from real DEM data - not a
 synthetic environment**.*
 
 ---
@@ -82,7 +82,7 @@ synthetic environment**.*
 
 **Detection (Chandrayaan-2 DFSAR, full-pol scene `20200321t082617351`).**
 From the four complex channels (HH, HV, VH, VV) we form the **linear-basis Stokes parameters**
-of the backscatter — after a mandatory **3×3 boxcar multilook** of the intensity/covariance
+of the backscatter - after a mandatory **3×3 boxcar multilook** of the intensity/covariance
 terms:
 
 ```
@@ -94,9 +94,9 @@ S4 = −2·Im(HH·conj(VV))
 
 From Stokes we derive two polarimetric descriptors and apply the ice criterion:
 
-- **CPR** (Circular Polarization Ratio) = (S1 − S4) / (S1 + S4) — high CPR indicates
+- **CPR** (Circular Polarization Ratio) = (S1 − S4) / (S1 + S4) - high CPR indicates
   wavelength-scale roughness / coherent backscatter.
-- **DOP** (Degree of Polarization) = √(S2² + S3² + S4²) / S1 — **low** DOP indicates
+- **DOP** (Degree of Polarization) = √(S2² + S3² + S4²) / S1 - **low** DOP indicates
   volume (multiple) scattering, the signature of buried ice.
 - **ICE ⇔ `CPR > 1` AND `DOP < 0.13`** (Sinha et al. 2026, author-confirmed).
 
@@ -110,11 +110,11 @@ Slope, roughness, local relief, curvature and a horizon-based illumination proxy
 over the AOI. A **hazard mask** hard-rejects steep/rough/high-relief/crater terrain
 (slope > 10°). Surviving terrain is scored by a transparent, physics-based
 **weighted multi-criteria suitability** model, evaluated under four weightings. Each candidate
-must pass a **75 m landing-ellipse test** — a contiguous safe footprint, not one lucky pixel.
+must pass a **75 m landing-ellipse test** - a contiguous safe footprint, not one lucky pixel.
 
 **Traverse (`lunar-psr-DRL` submodule).**
 The detected ice pixels are clustered into router nodes; the selected landing site becomes the
-depot. The energy-constrained multi-trip route is solved three ways for comparison — a **Greedy +
+depot. The energy-constrained multi-trip route is solved three ways for comparison - a **Greedy +
 2-opt** heuristic, an exact **Timed A\*** over `(position, visited_set, battery)`, and a
 **transformer encoder-decoder reinforcement-learning router** (Kool et al. 2018) whose amortised
 inference holds coverage as the node count scales. See
@@ -134,7 +134,7 @@ recharge-scheduling prototype** for the illuminated approach.
 ### Terrain foundation
 
 - **In-house DEM from Chandrayaan-2 TMC-2 stereo** (fore / nadir / aft panchromatic):
-  orthorectified and matched by dense normalised cross-correlation to recover elevation —
+  orthorectified and matched by dense normalised cross-correlation to recover elevation -
   19.4 × 60.1 km at 120 m posting, 3630 m of relief (shown under [Demo](#demo)).
 - **LOLA topography** supplies slope/hazard for the PSR interior, where a passive optical stereo
   product cannot resolve a texture-less, permanently shadowed floor. *(The router ships a LOLA
@@ -145,7 +145,7 @@ recharge-scheduling prototype** for the illuminated approach.
 
 ### The routing problem
 
-- **Depot** (index 0) = the PSR rim entry — the rover starts full and recharges here; selecting
+- **Depot** (index 0) = the PSR rim entry - the rover starts full and recharges here; selecting
   the depot mid-route triggers a recharge and opens a new sortie.
 - **Candidate nodes** = ice points on the floor. Each carries `(x, y)` in metres from the rim
   origin, a **confidence** in [0, 1] from normalised CPR/DOP, and a **hazard multiplier** in
@@ -156,9 +156,9 @@ recharge-scheduling prototype** for the illuminated approach.
 - Instances are generated **synthetically but grounded in DFSAR statistics** (2–6 hotspots per
   crater, confidence 0.65–0.98, 15–45 candidates) so the policy can train before real DFSAR nodes
   are processed; at inference the same `Node`/`Instance` objects are populated from real CPR/DOP
-  candidates — *the policy code does not change* (`instance_generator.py`).
+  candidates - *the policy code does not change* (`instance_generator.py`).
 
-### Learned router — attention policy (Kool et al. 2018)
+### Learned router - attention policy (Kool et al. 2018)
 
 A transformer encoder-decoder (`model.py` / `model_v2.py`), adapted for multi-trip depot-return:
 
@@ -175,9 +175,9 @@ A transformer encoder-decoder (`model.py` / `model_v2.py`), adapted for multi-tr
 
 Two deterministic comparators validate the learned router:
 
-- **Greedy + 2-opt** — score nodes by `confidence / travel_cost`, greedy construction, intra-sortie
+- **Greedy + 2-opt** - score nodes by `confidence / travel_cost`, greedy construction, intra-sortie
   2-opt improvement (<10 ms).
-- **Timed A\*** — exact state-space search over `(position, visited_set, battery)` with an
+- **Timed A\*** - exact state-space search over `(position, visited_set, battery)` with an
   admissible reward-upper-bound heuristic and a time-limited fallback to greedy. Optimal for small
   node counts, impractical beyond ~20 nodes.
 
@@ -191,7 +191,7 @@ The router's own reported inference summary:
 | Timed A* | 5.304 | 100.0 % | 3 | 5124.4 ms |
 | RL policy | 5.304 | 100.0 % | 5 | 8978.1 ms |
 
-At n = 15 the problem is easy enough that all three tie on reward and coverage — greedy already
+At n = 15 the problem is easy enough that all three tie on reward and coverage - greedy already
 finds the optimum, and here does so fastest. The learned policy's advantage is a **scaling** one:
 at n = 30/45, greedy coverage falls to ~70–85 %, while the amortised policy holds high coverage by
 prioritising high-confidence clusters at near-constant inference cost. *(These are
@@ -204,7 +204,7 @@ router's committed results.)*
 sunlit approach: an OR-Tools **CP-SAT** vehicle-routing model with per-node **illumination time
 windows** (a rover analogue of the O-EVRPTW rendezvous formulation, Mondal et al. 2025), where
 charging is available only while a waypoint is lit. It demonstrates illumination-window-aware
-recharge sequencing and is a stand-in awaiting real ray-traced illumination windows — it is not
+recharge sequencing and is a stand-in awaiting real ray-traced illumination windows - it is not
 yet wired to the detection outputs.
 
 ### Hand-off contract
@@ -238,17 +238,17 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    subgraph DETECT["🛰️ Detect — Chandrayaan-2 DFSAR"]
+    subgraph DETECT["🛰️ Detect - Chandrayaan-2 DFSAR"]
         A[Full-pol SLI<br/>HH·HV·VH·VV] --> B[3×3 multilook<br/>→ linear Stokes]
         B --> C[CPR &amp; DOP]
         C --> D["Ice mask<br/>CPR&gt;1 &amp; DOP&lt;0.13<br/>0.47 km² · ~1.08 Mt"]
     end
-    subgraph LAND["🌑 Land — NASA LOLA"]
+    subgraph LAND["🌑 Land - NASA LOLA"]
         E[DEM + slope AOI] --> F[slope · roughness ·<br/>relief · illumination]
         F --> G[hazard mask +<br/>weighted suitability]
         G --> H["4 ranked sites<br/>+ 75 m ellipse test"]
     end
-    subgraph TRAVERSE["🤖 Traverse — lunar-psr-DRL"]
+    subgraph TRAVERSE["🤖 Traverse - lunar-psr-DRL"]
         I[ice nodes + depot] --> J[energy-constrained<br/>A* / RL router]
         J --> K[multi-trip route]
     end
@@ -288,8 +288,8 @@ lunar_landing/
 ├── docs/                       methodology report, hand-off interface, figure guide
 ├── assets/                     figures embedded in this README
 ├── outputs/                    results (rasters git-ignored; geojson/json/csv committed)
-├── data/                       git-ignored inputs — see data/README.md to obtain them
-└── lunar-psr-DRL/              submodule — rover-traverse planning stack
+├── data/                       git-ignored inputs - see data/README.md to obtain them
+└── lunar-psr-DRL/              submodule - rover-traverse planning stack
     ├── routing/                energy-constrained multi-trip orienteering
     │   ├── model.py · model_v2.py   attention encoder-decoder policy (Kool 2018)
     │   ├── train.py · train_v2.py    REINFORCE training
@@ -350,7 +350,7 @@ We report these plainly because a landing decision depends on them:
   in-situ or additional sensing.
 - **No incidence-angle correction.** Backscatter is used as delivered; local incidence is
   not normalized.
-- **Multilook only — no dedicated speckle filter.** A 3×3 boxcar multilook is applied; there
+- **Multilook only - no dedicated speckle filter.** A 3×3 boxcar multilook is applied; there
   is no Lee/Frost/refined speckle filtering.
 - **Illumination is a topographic proxy.** The illumination index is a horizon ray-cast, not
   a Sun-ephemeris + shadow-ray model; treat it as a power/comms proxy.
@@ -377,7 +377,7 @@ The official presentation deck submitted to the ISRO Bharatiya Antariksh Hackath
 *As cited in this project (verify full bibliographic details against source before formal use):*
 
 - **Sinha, R. K., et al. (2026).** Full-polarimetric CPR + DOP detection of subsurface water
-  ice in lunar polar craters. *(Detection criterion `CPR > 1 AND DOP < 0.13` — author-confirmed for this work.)*
+  ice in lunar polar craters. *(Detection criterion `CPR > 1 AND DOP < 0.13` - author-confirmed for this work.)*
 - **Putrevu, D., et al. (2021).** Chandrayaan-2 Dual-Frequency Synthetic Aperture Radar
   (DFSAR): instrument description and initial results.
 - **Raney, R. K. (2012).** Decomposition of hybrid-polarity radar data (m-χ / CPR) for
@@ -390,19 +390,20 @@ The official presentation deck submitted to the ISRO Bharatiya Antariksh Hackath
 
 ## Acknowledgements
 
-- **Dr. Rishitosh K. Sinha** — for confirming the CPR/DOP subsurface-ice detection criterion.
-- **ISRO / PRADAN (ISSDC)** — for the Chandrayaan-2 DFSAR data.
-- **NASA PGDA** — for the LOLA south-polar topography.
+- **Dr. Rishitosh K. Sinha** - for confirming the CPR/DOP subsurface-ice detection criterion.
+- **ISRO / PRADAN (ISSDC)** - for the Chandrayaan-2 DFSAR data.
+- **NASA PGDA** - for the LOLA south-polar topography.
 
 ## Team Cypher
 
 | | Name | College |
-|---|---|---|---|
-| **Team Leader** | Pranjal Srivastav | BITS Pilani, Rajasthan | 
-| **Member** | Arav Gupta | BITS Pilani, Rajasthan | 
-| **Member** | Sagar Kumar | BITS Pilani, Rajasthan | 
+|---|---|---|
+| **Team Leader** | Pranjal Srivastav | BITS Pilani, Rajasthan |
+| **Member** | Arav Gupta | BITS Pilani, Rajasthan |
+| **Member** | Sagar Kumar | BITS Pilani, Rajasthan |
 | **Member** | Muhammed Razan | B.M.S College of Engineering |
-Modular ownership — each subsystem is self-contained with documented hand-off
+
+Modular ownership - each subsystem is self-contained with documented hand-off
 interfaces between modules.
 
 ## License
