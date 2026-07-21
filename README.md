@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Data](https://img.shields.io/badge/data-Chandrayaan--2%20DFSAR%20%7C%20NASA%20LOLA-0b2a4a)
 
-> ### 🏆 Top 10 - ISRO Bharatiya Antariksh Hackathon 2026 (Problem Statement 8)
+> ### 🏆 Top 10: ISRO Bharatiya Antariksh Hackathon 2026 (Problem Statement 8)
 
 ## Built and validated on real mission data
 
