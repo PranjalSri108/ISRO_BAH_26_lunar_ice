@@ -199,32 +199,6 @@ pip install -r requirements.txt
 Then follow [`data/README.md`](data/README.md) to download the DFSAR and LOLA inputs
 (they are not committed) and place them where `config/config.yaml` expects.
 
-## Quickstart — run the pipeline in order
-
-The package is imported from `src/`, so run scripts with `PYTHONPATH=src`:
-
-```bash
-# --- Landing-site selection (LOLA) ---
-PYTHONPATH=src python3 scripts/00_prepare.py        # locate F2, crop the AOI
-PYTHONPATH=src python3 scripts/01_terrain.py        # slope / roughness / relief / curvature
-PYTHONPATH=src python3 scripts/02_illumination.py   # illumination proxy + PSR mask
-PYTHONPATH=src python3 scripts/03_suitability.py    # hazard mask + weighted suitability
-PYTHONPATH=src python3 scripts/04_candidates.py     # 4 ranked landing sites
-PYTHONPATH=src python3 scripts/05_figures.py        # figures + hand-off products
-
-# --- Subsurface-ice detection (DFSAR) ---
-PYTHONPATH=src python3 scripts/06_dfsar_detect.py   # L3C derived-mosaic ice
-PYTHONPATH=src python3 scripts/08_fp_detect.py      # full-pol CPR + DOP ice (headline)
-
-# --- Hand-off to the router + hero figure ---
-PYTHONPATH=src python3 scripts/07_export_candidates.py  # ice nodes + depot for the router
-PYTHONPATH=src python3 scripts/09_pipeline_figure.py    # three-panel hero figure
-```
-
-Results are written to `outputs/`; the tiny result files (GeoJSON candidates, `manifest.json`,
-detection `stats.json`, `volume.csv`) are committed so you can inspect the numbers without
-re-running anything.
-
 ---
 
 ## Selected results
