@@ -1,0 +1,51 @@
+# --- Data (never committed — obtain per data/README.md) ---
+# data/README.md is kept (not matched below); small router-input CSVs are kept, rasters are not.
+data/raw/
+data/interim/
+# Keep small router-input CSVs (illustrative); ignore everything else under processed/.
+data/processed/*
+!data/processed/*.csv
+
+# --- Large geospatial rasters (GitHub hard-rejects >100 MB) ---
+*.tif
+*.tiff
+*.img
+*.TIF
+*.IMG
+
+# --- Outputs: gitignore the folder, keep only tiny result files ---
+outputs/*
+!outputs/dfsar/
+!outputs/fp_f2/
+outputs/dfsar/*
+outputs/fp_f2/*
+!outputs/**/*.geojson
+!outputs/**/*.json
+!outputs/**/*.csv
+!outputs/*.geojson
+!outputs/*.json
+# (figures used by the README live in assets/, which is tracked)
+
+# --- Internal / working scaffolding ---
+dev/
+.claude/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

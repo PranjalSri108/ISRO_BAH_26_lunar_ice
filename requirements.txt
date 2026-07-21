@@ -1,0 +1,15 @@
+# Pinned to the tested runtime (Python 3.10+). Versions are what the pipeline was run with.
+# scikit-image is intentionally absent — nothing in src/ or scripts/ imports it.
+numpy==2.2.6
+scipy==1.15.3
+rasterio==1.4.4
+pyproj==3.7.1
+matplotlib==3.10.3
+scikit-learn==1.6.1   # KMeans clustering of ice pixels -> router nodes (07)
+shapely==2.0.6
+geopandas==1.1.3
+pyyaml==6.0.1
+
+# Also required, but NOT a pip package:
+#   GDAL command-line tools (gdalwarp) — used by scripts/08_fp_detect.py for TPS geocoding.
+#   Install via your OS package manager, e.g.  apt-get install gdal-bin  (tested: GDAL 3.4.1).
