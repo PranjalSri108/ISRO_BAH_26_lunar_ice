@@ -140,8 +140,8 @@ lunar_landing/
 ## Installation
 
 ```bash
-git clone --recursive https://github.com/<your-org>/lunar_landing.git
-cd lunar_landing
+git clone --recursive https://github.com/PranjalSri108/ISRO_BAH_26_lunar_ice.git
+cd ISRO_BAH_26_lunar_ice
 
 # if you already cloned without --recursive:
 git submodule update --init --recursive
