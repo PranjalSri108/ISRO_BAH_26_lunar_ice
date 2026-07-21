@@ -35,6 +35,27 @@ the wrong depolarization threshold, over-reports ice by two and a half orders of
 
 ---
 
+## Demo
+
+### In-house DEM from Chandrayaan-2 TMC-2 stereo
+
+![DEM of the F2 region built from Chandrayaan-2 TMC-2 stereo](assets/tmc2_stereo_dem.jpeg)
+
+*An in-house digital elevation model built from Chandrayaan-2 **TMC-2 stereo triplets**
+(fore / nadir / aft), orthorectified and matched by **dense normalised cross-correlation**.
+Coverage **19.4 × 60.1 km** at **120 m** posting, spanning **3630 m** of relief. This DEM
+underpins the rover-traverse simulation below.*
+
+### Rover traverse over real F2 terrain
+
+[![Rover traverse simulation over F2 crater terrain — click to play](assets/rover_traverse_f2_thumb.jpg)](assets/rover_traverse_f2.mp4)
+
+*Click the still above to play the simulation → [`assets/rover_traverse_f2.mp4`](assets/rover_traverse_f2.mp4).
+The traverse runs over the **actual F2 crater terrain reconstructed from real DEM data — not a
+synthetic environment**.*
+
+---
+
 ## Method
 
 **Detection (Chandrayaan-2 DFSAR, full-pol scene `20200321t082617351`).**
@@ -223,6 +244,14 @@ We report these plainly because a landing decision depends on them:
   crater interior is approximated by a radius disk.
 - **Catalogue cross-validation is out-of-AOI.** The nearest ICY_CRATERS_SP catalogue ice is
   ~20 km from F2, so overlap-based recovery is not meaningful at F2 itself.
+
+---
+
+## Presentation
+
+The official presentation deck submitted to the ISRO Bharatiya Antariksh Hackathon 2026
+(Problem Statement 8) is included here:
+**[`docs/ISRO_BAH_2026_Deck.pdf`](docs/ISRO_BAH_2026_Deck.pdf)**.
 
 ---
 
