@@ -275,13 +275,12 @@ The official presentation deck submitted to the ISRO Bharatiya Antariksh Hackath
 
 ## Team Cypher
 
-| | Name | College | Focus |
+| | Name | College |
 |---|---|---|---|
-| **Team Leader** | Pranjal Srivastav | BITS Pilani, Rajasthan | Radar ice detection & volume estimation |
-| **Member** | Arav Gupta | BITS Pilani, Rajasthan | OHRC hazards & LunarFM |
-| **Member** | Sagar Kumar | BITS Pilani, Rajasthan | RL path-planning |
-| **Member** | Muhammed Razan | B.M.S College of Engineering | TMC-2 DEM & thermal-aware A* planner |
-
+| **Team Leader** | Pranjal Srivastav | BITS Pilani, Rajasthan | 
+| **Member** | Arav Gupta | BITS Pilani, Rajasthan | 
+| **Member** | Sagar Kumar | BITS Pilani, Rajasthan | 
+| **Member** | Muhammed Razan | B.M.S College of Engineering |
 Modular ownership — each subsystem is self-contained with documented hand-off
 interfaces between modules.
 
