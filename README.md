@@ -114,9 +114,123 @@ must pass a **75 m landing-ellipse test** — a contiguous safe footprint, not o
 
 **Traverse (`lunar-psr-DRL` submodule).**
 The detected ice pixels are clustered into router nodes; the selected landing site becomes the
-depot. Routing is solved two ways for comparison: an **energy/illumination-aware, time-limited
-A\*** (plus a Greedy + 2-opt baseline) and a **transformer encoder-decoder reinforcement-learning
-router** that produces good energy-constrained multi-trip routes in milliseconds at any size.
+depot. The energy-constrained multi-trip route is solved three ways for comparison — a **Greedy +
+2-opt** heuristic, an exact **Timed A\*** over `(position, visited_set, battery)`, and a
+**transformer encoder-decoder reinforcement-learning router** (Kool et al. 2018) whose amortised
+inference holds coverage as the node count scales. See
+[Navigation & mission planning stack](#navigation--mission-planning-stack) for the full subsystem.
+
+---
+
+## Navigation & mission planning stack
+
+Once a landing site and a set of ice targets exist, reaching the ice is an
+**energy-constrained, multi-trip orienteering problem**: from a rim depot the rover visits as
+many high-confidence ice nodes as its battery allows, returning to recharge between sorties, while
+respecting terrain hazard. This subsystem lives in the [`lunar-psr-DRL`](lunar-psr-DRL) submodule
+and is organised as a **learned router** (the benchmarked core) plus a **constraint-programming
+recharge-scheduling prototype** for the illuminated approach.
+
+### Terrain foundation
+
+- **In-house DEM from Chandrayaan-2 TMC-2 stereo** (fore / nadir / aft panchromatic):
+  orthorectified and matched by dense normalised cross-correlation to recover elevation —
+  19.4 × 60.1 km at 120 m posting, 3630 m of relief (shown under [Demo](#demo)).
+- **LOLA topography** supplies slope/hazard for the PSR interior, where a passive optical stereo
+  product cannot resolve a texture-less, permanently shadowed floor. *(The router ships a LOLA
+  20 m south-polar tile, `routing/data/processed/LDEM_80S_20MPP_ADJ.TIF`; the landing pipeline
+  uses the 5 m LOLA DEM.)*
+- The **PSR / shadow field** feeding hazard comes from the landing pipeline's illumination module
+  (`src/lunar_ice/illumination.py` → `psr_mask`).
+
+### The routing problem
+
+- **Depot** (index 0) = the PSR rim entry — the rover starts full and recharges here; selecting
+  the depot mid-route triggers a recharge and opens a new sortie.
+- **Candidate nodes** = ice points on the floor. Each carries `(x, y)` in metres from the rim
+  origin, a **confidence** in [0, 1] from normalised CPR/DOP, and a **hazard multiplier** in
+  [1.0, 3.0] from local slope/roughness. Edge cost = Euclidean distance × geometric mean of the
+  two endpoints' hazard multipliers.
+- Objective: maximise visited confidence under a hard battery budget, with a skip penalty for
+  bypassed nodes.
+- Instances are generated **synthetically but grounded in DFSAR statistics** (2–6 hotspots per
+  crater, confidence 0.65–0.98, 15–45 candidates) so the policy can train before real DFSAR nodes
+  are processed; at inference the same `Node`/`Instance` objects are populated from real CPR/DOP
+  candidates — *the policy code does not change* (`instance_generator.py`).
+
+### Learned router — attention policy (Kool et al. 2018)
+
+A transformer encoder-decoder (`model.py` / `model_v2.py`), adapted for multi-trip depot-return:
+
+- Node features `[x, y, conf, hazard, visited]`; context `[x_curr, y_curr, batt_frac, step_frac]`.
+- `embed_dim=128`, `n_heads=8`, `n_encoder_layers=3`, `ff_dim=512`; the decoder uses a
+  cross-attention glimpse plus compatibility scores, with **infeasible actions masked to −∞**
+  before the softmax so the battery constraint is enforced structurally.
+- Trained with REINFORCE and batch-normalised advantages (`train.py`); `v2` adds LayerNorm (safe
+  at batch size 1), dropout, and a static embedding cache.
+- Amortised: once trained it emits a full multi-trip tour in a single batched forward pass and
+  scales to large node sets without re-solving.
+
+### Baselines (`baselines.py`)
+
+Two deterministic comparators validate the learned router:
+
+- **Greedy + 2-opt** — score nodes by `confidence / travel_cost`, greedy construction, intra-sortie
+  2-opt improvement (<10 ms).
+- **Timed A\*** — exact state-space search over `(position, visited_set, battery)` with an
+  admissible reward-upper-bound heuristic and a time-limited fallback to greedy. Optimal for small
+  node counts, impractical beyond ~20 nodes.
+
+### Benchmark (n = 15, synthetic instances)
+
+The router's own reported inference summary:
+
+| Method | Reward | Coverage | Recharges | Time |
+|--------|-------:|---------:|----------:|-----:|
+| Greedy + 2-opt | 5.304 | 100.0 % | 3 | 0.6 ms |
+| Timed A* | 5.304 | 100.0 % | 3 | 5124.4 ms |
+| RL policy | 5.304 | 100.0 % | 5 | 8978.1 ms |
+
+At n = 15 the problem is easy enough that all three tie on reward and coverage — greedy already
+finds the optimum, and here does so fastest. The learned policy's advantage is a **scaling** one:
+at n = 30/45, greedy coverage falls to ~70–85 %, while the amortised policy holds high coverage by
+prioritising high-confidence clusters at near-constant inference cost. *(These are
+synthetic-instance benchmarks; end-to-end numbers on the real F2 node set are not yet part of the
+router's committed results.)*
+
+### Illuminated-approach recharge scheduling (prototype)
+
+`landing_site/lunar_rover_demo.py` adds a complementary, **explicitly synthetic** scaffold for the
+sunlit approach: an OR-Tools **CP-SAT** vehicle-routing model with per-node **illumination time
+windows** (a rover analogue of the O-EVRPTW rendezvous formulation, Mondal et al. 2025), where
+charging is available only while a waypoint is lit. It demonstrates illumination-window-aware
+recharge sequencing and is a stand-in awaiting real ray-traced illumination windows — it is not
+yet wired to the detection outputs.
+
+### Hand-off contract
+
+The module composes with the rest through co-registered files, so each subsystem runs and
+validates independently:
+
+- ranked **landing site → rover depot** (`data/processed/depot.csv`),
+- detected **ice clusters → traverse nodes** (`data/processed/candidates_router.csv`),
+- terrain / hazard and PSR / shadow fields from the LOLA landing pipeline.
+
+### Traverse flow
+
+```mermaid
+flowchart LR
+    A[Chandrayaan-2<br/>TMC-2 stereo] --> B[In-house DEM]
+    B --> C[Composite cost map<br/>hazard × distance]
+    P[LOLA DEM +<br/>PSR / shadow field] --> C
+    D[CPR/DOP ice nodes] --> E[Instance<br/>depot + candidates]
+    C --> E
+    E --> F[Learned router<br/>attention policy]
+    E --> G[Baselines<br/>Greedy+2-opt · Timed A*]
+    F --> H[Executable<br/>multi-trip traverse]
+    G --> H
+    E -.-> I[(CP-SAT recharge<br/>scheduling · prototype)]
+```
 
 ---
 
@@ -175,7 +289,14 @@ lunar_landing/
 ├── assets/                     figures embedded in this README
 ├── outputs/                    results (rasters git-ignored; geojson/json/csv committed)
 ├── data/                       git-ignored inputs — see data/README.md to obtain them
-└── lunar-psr-DRL/              submodule: RL + A* rover-traverse router
+└── lunar-psr-DRL/              submodule — rover-traverse planning stack
+    ├── routing/                energy-constrained multi-trip orienteering
+    │   ├── model.py · model_v2.py   attention encoder-decoder policy (Kool 2018)
+    │   ├── train.py · train_v2.py    REINFORCE training
+    │   ├── baselines.py              Greedy+2-opt and Timed A* comparators
+    │   ├── environment.py            LunarRoverEnv (step, reward, action masking)
+    │   └── instance_generator.py     DFSAR-grounded synthetic instances
+    └── landing_site/           CP-SAT illumination-window recharge prototype (synthetic)
 ```
 
 ---
