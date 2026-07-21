@@ -4,8 +4,30 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Data](https://img.shields.io/badge/data-Chandrayaan--2%20DFSAR%20%7C%20NASA%20LOLA-0b2a4a)
 
 > ### 🏆 Top 10 — ISRO Bharatiya Antariksh Hackathon 2026 (Problem Statement 8)
+
+## Built and validated on real mission data
+
+Every result in this repository comes from archived planetary mission
+data — no simulated scenes, no synthetic terrain, no toy benchmarks.
+
+| Dataset | Source | Role |
+|---|---|---|
+| **Chandrayaan-2 DFSAR** full-polarimetric scene `20200321t082617351` | ISRO PRADAN / ISDA | Scattering matrix → Stokes → CPR + DOP ice detection |
+| **Chandrayaan-2 TMC-2** stereo (fore/nadir/aft) | ISRO PRADAN | In-house DEM: 19.4 × 60.1 km, 120 m posting, 3630 m relief |
+| **NASA LOLA 5 m south-polar DEM** | NASA PGDA (Barker et al. 2021) | Slope, roughness, relief, horizon illumination, PSR mapping |
+| **ICY_CRATERS mask** (Putrevu 2023) | Published catalogue | Independent validation reference |
+
+- Detection runs on the **true full-polarimetric Stokes vector** computed from
+  the complex HH/HV/VH/VV channels — not on a pre-derived product.
+- The landing site, hazard mask, and illumination index are derived from real
+  LOLA topography over crater F2 (Faustini, 87.39°S 82.31°E).
+- The rover traverse executes on the **actual F2 crater terrain**, with real
+  shadow geometry — not a synthetic environment.
+- Results are cross-checked against published literature (Sinha et al. 2026)
+  and an independent catalogue, with disagreements reported openly.
 
 This project takes a doubly-shadowed south-polar crater — **F2 (Faustini), 87.39°S 82.31°E** —
 and runs the full mission-planning loop on **real data**: detect subsurface water ice from
@@ -277,14 +299,17 @@ The official presentation deck submitted to the ISRO Bharatiya Antariksh Hackath
 - **ISRO / PRADAN (ISSDC)** — for the Chandrayaan-2 DFSAR data.
 - **NASA PGDA** — for the LOLA south-polar topography.
 
-## Team
+## Team Cypher
 
-**Team Cypher** — ISRO Bharatiya Antariksh Hackathon 2026, Problem Statement 8.
+| | Name | College | Focus |
+|---|---|---|---|
+| **Team Leader** | Pranjal Srivastav | BITS Pilani, Rajasthan | Radar ice detection & volume estimation |
+| **Member** | Arav Gupta | BITS Pilani, Rajasthan | OHRC hazards & LunarFM |
+| **Member** | Sagar Kumar | BITS Pilani, Rajasthan | RL path-planning |
+| **Member** | Muhammed Razan | B.M.S College of Engineering | TMC-2 DEM & thermal-aware A* planner |
 
-<!-- TODO(team): replace the handles below with each member's full name and role. -->
-
-- Detection & landing-site pipeline — [@PranjalSri9108](https://github.com/PranjalSri9108)
-- Rover-traverse router (`lunar-psr-DRL`) — [@AravG13](https://github.com/AravG13)
+Modular ownership — each subsystem is self-contained with documented hand-off
+interfaces between modules.
 
 ## License
 
