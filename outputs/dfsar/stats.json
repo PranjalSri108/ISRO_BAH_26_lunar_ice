@@ -1,0 +1,99 @@
+{
+  "aoi": {
+    "bounds_m": [
+      63446.0,
+      -4408.0,
+      93446.0,
+      25592.0
+    ],
+    "shape": [
+      1200,
+      1200
+    ],
+    "pixel_size_m": 25.0,
+    "f2_xy_m": [
+      78446,
+      10592
+    ],
+    "f2_aoi_rowcol": [
+      600,
+      600
+    ]
+  },
+  "criterion": "CPR > 1 AND volume scattering dominant (VOL > ODD+EVN+HLX); m-chi/Yamaguchi analog of CPR+DOP, ~5 m penetration assumed",
+  "thresholds": {
+    "cpr_thresh": 1.0,
+    "cpr_ref": 2.0,
+    "vol_pctile": 90.0
+  },
+  "counts": {
+    "valid_px": 1191086,
+    "total_px": 1440000,
+    "cpr_high_px": 4780,
+    "vol_dominant_px": 117231,
+    "ice_px_primary": 4544,
+    "ice_px_alt": 3834,
+    "vol_p90": 3.369295537014594e-10
+  },
+  "f2_interior": {
+    "radius_m": 5000.0,
+    "valid_px": 100920,
+    "ice_px": 1328,
+    "ice_pct": 1.3158937772493065,
+    "note": "interior is a PROXY disk (no published F2 rim polygon in these data)"
+  },
+  "ice_area_km2": 2.84,
+  "validation": {
+    "catalogue_px_in_aoi": 0,
+    "detected_px": 4544,
+    "true_positive_px": 0,
+    "agreement_pct": 0.0,
+    "recovery_pct": null
+  },
+  "validation_note": "ICY_CRATERS_SP nearest-neighbour aligned to the CPR AOI grid; recovery is NaN/0 if the catalogue flags no ice inside this AOI",
+  "volume": {
+    "area_m2": 2840000.0,
+    "area_km2": 2.84,
+    "levels": {
+      "low": {
+        "porosity": 0.4,
+        "ice_fraction": 0.4,
+        "ice_area_km2": 2.84,
+        "depth_m": 5.0,
+        "ice_volume_m3": 5680000.0,
+        "water_mass_kg": 5208560000.0,
+        "water_mass_Mt": 5.20856,
+        "eps_birchak": 2.875839990856098,
+        "eps_maxwell_garnett": 2.8741935483870966
+      },
+      "central": {
+        "porosity": 0.5,
+        "ice_fraction": 0.5,
+        "ice_area_km2": 2.84,
+        "depth_m": 5.0,
+        "ice_volume_m3": 7100000.0,
+        "water_mass_kg": 6510700000.0,
+        "water_mass_Mt": 6.5107,
+        "eps_birchak": 2.920666657141769,
+        "eps_maxwell_garnett": 2.9189189189189184
+      },
+      "high": {
+        "porosity": 0.6,
+        "ice_fraction": 0.6,
+        "ice_area_km2": 2.84,
+        "depth_m": 5.0,
+        "ice_volume_m3": 8520000.0,
+        "water_mass_kg": 7812840000.0,
+        "water_mass_Mt": 7.81284,
+        "eps_birchak": 2.9658399908560984,
+        "eps_maxwell_garnett": 2.9641304347826085
+      }
+    }
+  },
+  "assumptions": [
+    "no optical data: detection is radar CPR + decomposition only",
+    "VOL/ODD/EVN/HLX are linear scattered-power layers; the vol-dominant test is scale-invariant",
+    "ice_fraction = porosity (pore space fully ice-filled) \u2014 an upper-bound assumption",
+    "5 m radar penetration depth assumed for the ice column"
+  ]
+}

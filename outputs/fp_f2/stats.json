@@ -1,0 +1,117 @@
+{
+  "scene": "ch2_sar_ncxl_20200321t082617351_d_sli_xx_fp",
+  "method": "true full-pol Stokes CPR + DOP (linear-basis)",
+  "criterion": "CPR > 1 AND DOP < 0.13 (Sinha et al. 2026, author-confirmed); low DOP = volume scattering = subsurface ice; 5 m penetration assumed",
+  "stokes": "S1=|HH|^2+2|HV|^2+|VV|^2; S2=|HH|^2-|VV|^2; S3=2Re(HH conj VV); S4=-2Im(HH conj VV); 3x3 boxcar multilook before forming Stokes",
+  "aoi": {
+    "bounds_m": [
+      63438.938045,
+      -4399.732753999997,
+      93438.938045,
+      25600.267246000003
+    ],
+    "shape": [
+      1200,
+      1200
+    ],
+    "f2_xy_m": [
+      78446,
+      10592
+    ],
+    "f2_aoi_rowcol": [
+      600,
+      600
+    ]
+  },
+  "processing": {
+    "azimuth_band": [
+      0,
+      104523
+    ],
+    "multilook": 3,
+    "slant_grid": [
+      34841,
+      171
+    ],
+    "n_gcps_used": 1080,
+    "gcp_source": "g_sli geometry CSV",
+    "geocode": "GCP TPS warp, near"
+  },
+  "sanity": {
+    "dop_min": 0.00468655489385128,
+    "dop_max": 0.9991456270217896,
+    "cpr_min": 0.042070887982845306
+  },
+  "valid_px": 610562,
+  "cpr_median": 1.1012251377105713,
+  "cpr_max": 23.784252166748047,
+  "dop_median": 0.7623125314712524,
+  "ice_px": 752,
+  "ice_area_km2": 0.47,
+  "f2_interior": {
+    "radius_m": 5000.0,
+    "valid_px": 125629,
+    "ice_px": 216,
+    "ice_pct": 0.17193482396580406,
+    "note": "interior is a PROXY disk (no published F2 rim polygon)"
+  },
+  "threshold_contrast": {
+    "dop_author_0p13": {
+      "ice_px": 752,
+      "ice_area_km2": 0.47
+    },
+    "dop_team_error_0p87": {
+      "ice_px": 265723,
+      "ice_area_km2": 166.076875
+    },
+    "note": "DOP<0.87 (team error) floods in surface scatter; DOP<0.13 isolates ice"
+  },
+  "validation": {
+    "catalogue_px_in_aoi": 0,
+    "detected_px": 752,
+    "true_positive_px": 0,
+    "agreement_pct": 0.0,
+    "recovery_pct": null
+  },
+  "validation_note": "ICY_CRATERS_SP nearest-neighbour aligned to AOI; non-overlap expected (nearest catalogue ice ~20 km from F2)",
+  "volume": {
+    "area_m2": 470000.0,
+    "area_km2": 0.47,
+    "levels": {
+      "low": {
+        "porosity": 0.4,
+        "ice_fraction": 0.4,
+        "ice_area_km2": 0.47,
+        "depth_m": 5.0,
+        "ice_volume_m3": 940000.0,
+        "water_mass_kg": 861980000.0,
+        "water_mass_Mt": 0.86198,
+        "eps_birchak": 2.875839990856098,
+        "eps_maxwell_garnett": 2.8741935483870966
+      },
+      "central": {
+        "porosity": 0.5,
+        "ice_fraction": 0.5,
+        "ice_area_km2": 0.47,
+        "depth_m": 5.0,
+        "ice_volume_m3": 1175000.0,
+        "water_mass_kg": 1077475000.0,
+        "water_mass_Mt": 1.077475,
+        "eps_birchak": 2.920666657141769,
+        "eps_maxwell_garnett": 2.9189189189189184
+      },
+      "high": {
+        "porosity": 0.6,
+        "ice_fraction": 0.6,
+        "ice_area_km2": 0.47,
+        "depth_m": 5.0,
+        "ice_volume_m3": 1410000.0,
+        "water_mass_kg": 1292970000.0,
+        "water_mass_Mt": 1.29297,
+        "eps_birchak": 2.9658399908560984,
+        "eps_maxwell_garnett": 2.9641304347826085
+      }
+    }
+  },
+  "masking": "sri_ma > 0 (in-swath valid) AND geocode validity AND finite CPR/DOP"
+}

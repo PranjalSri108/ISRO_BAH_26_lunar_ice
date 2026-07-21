@@ -1,0 +1,117 @@
+# Landing-site selection — single source of truth.
+crs:
+  proj4: "+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs"
+  pixel_size_m: 5
+
+target: {name: F2, lat: -87.39, lon: 82.31}
+
+aoi:
+  half_width_m: 15000      # +/- 15 km box around F2 (30 km AOI). Enlarge if no safe site found.
+
+terrain:
+  rough_win_m: 50          # window for roughness / local relief
+  curvature: true
+
+constraints:                # HARD no-go thresholds (hazard mask)
+  slope_max_deg: 10.0       # landers need gentle slopes; tighten to 8 if plenty of area
+  roughness_max: null       # auto: set from AOI distribution (e.g. 90th pct) if null
+  relief_max_m: null        # auto from distribution if null
+
+weights:                    # soft suitability score (sum ~1.0)
+  slope: 0.30
+  roughness: 0.25
+  relief: 0.15
+  ice_proximity: 0.20       # nearer F2 = better (operational relevance)
+  illumination: 0.10        # PROXY (rim/PSR distance); set 0.0 to drop
+
+landing:
+  ellipse_radius_m: 75      # contiguous safe footprint required around a candidate
+  min_dist_from_F2_rim_m: 500    # don't land on the rim; stay outside crater interior
+  max_dist_from_F2_m: 8000       # but stay operationally near (rover-reachable)
+  top_n: 5
+
+paths:
+  dem:   data/raw/lola/ldem_87s_5mpp.tif
+  slope: data/raw/lola/ldsm_87s_5mpp.tif
+
+outputs:
+  interim: data/interim
+  out: outputs
+
+illumination:
+  enabled: true
+  compute_res_m: 20        # coarsen DEM to 20 m for ray-casting, resample result to 5 m
+  n_azimuths: 72           # azimuth bins for horizon angle
+  max_horizon_km: 10       # cap ray length
+  sun_elev_max_deg: 1.53   # max solar elevation at lunar south pole
+
+site_profiles:             # same hard constraints; different soft weights -> 3+1 sites
+  safest:      {slope: 0.45, roughness: 0.30, relief: 0.15, ice_proximity: 0.05, illumination: 0.05}
+  closest_ice: {slope: 0.20, roughness: 0.15, relief: 0.10, ice_proximity: 0.50, illumination: 0.05}
+  best_lit:    {slope: 0.20, roughness: 0.15, relief: 0.05, ice_proximity: 0.10, illumination: 0.50}
+  balanced:    {slope: 0.30, roughness: 0.25, relief: 0.15, ice_proximity: 0.20, illumination: 0.10}
+
+# --- DFSAR subsurface-ice detection (PS-8 add-on; separate from the LOLA terrain pipeline) ---
+# Chandrayaan-2 DFSAR L3C derived south-pole-east mosaic. CPR + volume-scattering criterion.
+# NOTE: this is ICE-DETECTION context for hand-off only; CLAUDE.md keeps ice detection OUT of
+# the terrain/landing module itself. Kept here so 06_dfsar_detect.py reads one config.
+dfsar:
+  dir: data/raw/dfsar/data/derived/20250630
+  # All four L3C decomposition layers + CPR share one 25 m polar-stereo grid (verified).
+  cpr: ch2_sar_ndxl_20250630mpcpspeast_d_cpr_xx_fp_xx_xxx.tif
+  vol: ch2_sar_ndxl_20250630my4rspeast_d_vol_xx_fp_xx_xxx.tif
+  odd: ch2_sar_ndxl_20250630my4rspeast_d_odd_xx_fp_xx_xxx.tif
+  evn: ch2_sar_ndxl_20250630my4rspeast_d_evn_xx_fp_xx_xxx.tif
+  hlx: ch2_sar_ndxl_20250630my4rspeast_d_hlx_xx_fp_xx_xxx.tif
+  icy_mask: data/raw/dfsar/DFSAR_Water_Ice/Polar_Water_Ice_Products/ICY_CRATERS_SP.tif
+
+  pixel_size_m: 25
+  # F2 in the DFSAR grid (verified): projected metres and (col,row). Used directly — the DFSAR
+  # mosaic CRS differs subtly from the LOLA config CRS, so we trust these provided coords.
+  f2_xy:    [78446, 10592]     # projected X, Y (m)
+  f2_pixel: [9512, 5541]       # col, row
+  half_width_m: 15000          # +/- 15 km AOI -> 1200 x 1200 px at 25 m
+  f2_interior_radius_m: 5000   # PROXY disk for "F2 interior" (no published F2 rim polygon here)
+
+  # Ice criterion: CPR > cpr_thresh AND volume scattering dominant.
+  cpr_thresh: 1.0
+  cpr_ref:    2.0              # CPR giving full ice_prob strength (AOI CPR maxes ~2.1)
+  vol_pctile: 90              # alternate vol-dominant definition: VOL > AOI p90
+
+  # Volume / water-equivalent mass (Maxwell-Garnett + Birchak mixing, pore-filled assumption).
+  penetration_depth_m: 5      # assumed radar penetration / ice column depth
+  porosity: {low: 0.40, central: 0.50, high: 0.60}
+  ice_density_kgm3: 917
+  eps_solid: 2.7              # solid regolith grain permittivity
+  eps_ice:   3.15            # water-ice permittivity
+
+  out: outputs/dfsar
+
+  # Hand-off to the rover path-planner / router (07_export_candidates.py).
+  export:
+    n_nodes: 30                    # ice clusters -> router candidate nodes
+    processed_dir: data/processed  # candidates.csv + depot.csv land here
+
+# --- Full-pol CPR + DOP ice detection on a single complex scene (08_fp_detect.py) ---
+# True Stokes CPR + DOP on the calibrated full-pol SLI scene over F2's floor. Shares the AOI /
+# volume / validation params from the dfsar block above (f2_xy, half_width_m, porosity, etc.).
+fp:
+  scene_dir: data/raw/dfsar/data/calibrated/20200321
+  stem: ch2_sar_ncxl_20200321t082617351_d_sli_xx_fp     # complex SLI channels (Band1=I, Band2=Q)
+  channels: {hh: _hh_d18.tif, hv: _hv_d18.tif, vh: _vh_d18.tif, vv: _vv_d18.tif}
+  gcp_channel: hh                                        # SLI used for raster dims
+  # g_sli geometry CSV (Lat,Lon,Slant_Range,Incidence on an az-major grid) -> geocoding GCPs.
+  gsli_csv: data/raw/dfsar/geometry/calibrated/20200321/ch2_sar_ncxl_20200321t082617351_g_sli_xx_fp_xx_d18.csv
+  sri_mask: ch2_sar_ncxl_20200321t082617351_d_sri_ma_fp_xx_d18.tif   # geocoded valid-data mask
+
+  multilook: 3                # 3x3 boxcar multilook
+  az_window: 2001             # azimuth rows per read window (multiple of multilook)
+  az_pad_rows: 14000         # extend processed band this many rows beyond the AOI GCP span
+  max_gcp_az_lines: 60       # subsample the CSV azimuth grid to <= this many lines (TPS cost)
+
+  cpr_thresh: 1.0
+  cpr_ref:    2.0            # CPR giving full ice_prob strength
+  dop_thresh: 0.13          # author-confirmed (Sinha et al. 2026): DOP < 0.13 = volume scattering
+  dop_team_error: 0.87      # the team's mistaken threshold — reported as a contrast only
+
+  out: outputs/fp_f2

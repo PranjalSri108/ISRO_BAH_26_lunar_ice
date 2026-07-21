@@ -1,0 +1,89 @@
+{
+  "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+  "pixel_size_m": 5.0,
+  "rasters": [
+    {
+      "path": "suitability.tif",
+      "description": "Balanced multi-criteria landing suitability",
+      "units": "[0,1]",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": "nan",
+      "dtype": "float32",
+      "width": 6000,
+      "height": 6000
+    },
+    {
+      "path": "hazard.tif",
+      "description": "Hard no-go mask (steep/rough/high-relief/crater/too-far)",
+      "units": "{0,1}",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": null,
+      "dtype": "uint8",
+      "width": 6000,
+      "height": 6000
+    },
+    {
+      "path": "slope.tif",
+      "description": "Surface slope (LOLA LDSM)",
+      "units": "deg",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": "nan",
+      "dtype": "float32",
+      "width": 6000,
+      "height": 6000
+    },
+    {
+      "path": "roughness.tif",
+      "description": "Local slope std (BOULDER PROXY, no optical)",
+      "units": "deg",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": "nan",
+      "dtype": "float32",
+      "width": 6000,
+      "height": 6000
+    },
+    {
+      "path": "illumination_index.tif",
+      "description": "Horizon-based annual-sunlit-fraction PROXY",
+      "units": "[0,1]",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": "nan",
+      "dtype": "float32",
+      "width": 6000,
+      "height": 6000
+    },
+    {
+      "path": "psr_mask.tif",
+      "description": "Permanently-shadowed-region proxy (index ~ 0)",
+      "units": "{0,1}",
+      "crs": "PROJCS[\"Moon2000_spole\",GEOGCS[\"GCS_Moon\",DATUM[\"D_Moon_2000\",SPHEROID[\"Moon_2000_IAU_IAG\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "pixel_size_m": 5.0,
+      "nodata": null,
+      "dtype": "uint8",
+      "width": 6000,
+      "height": 6000
+    }
+  ],
+  "vectors": [
+    {
+      "path": "landing_candidates.geojson",
+      "description": "Ranked landing points + metrics",
+      "crs": "EPSG:4326"
+    },
+    {
+      "path": "landing_site_polygon.geojson",
+      "description": "75 m safety ellipse, best site",
+      "crs": "EPSG:4326"
+    },
+    {
+      "path": "target_crater.geojson",
+      "description": "F2 (Faustini) crater outline",
+      "crs": "EPSG:4326"
+    }
+  ]
+}
